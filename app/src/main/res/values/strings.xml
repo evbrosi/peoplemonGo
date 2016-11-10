@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Budget</string>
+    <string name="username">username</string>
+    <string name="email_address">email address</string>
+    <string name="password">password</string>
+    <string name="cornfirm_password">cornfirm password</string>
+    <string name="register">register</string>
+    <string name="login">LOGIN</string>
+    <string name="fill_out">please bro, fill out all the fields.</string>
+    <string name="email_invalid">email ain\'t valid brah!</string>
+    <string name="passwords_match">passwords don\'t match... fix it!</string>
+    <string name="googlemapsApiKey">AIzaSyDShwaVFt4Bb8lTrpfTPTwSYfbGGXpUFhk</string>
+</resources>
