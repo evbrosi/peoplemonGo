@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.budget.Views.CaughtListView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/cycle_through_user"
+    <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:text="Pokemon Caught List."/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycle_pokemon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical">
     </android.support.v7.widget.RecyclerView>
 
-</LinearLayout>
+</com.example.budget.Views.CaughtListView>

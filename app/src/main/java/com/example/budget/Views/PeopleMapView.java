@@ -18,6 +18,7 @@ import com.example.budget.Network.RestClient;
 import com.example.budget.PokemonApplication;
 import com.example.budget.R;
 import com.example.budget.Stages.EditProfileStage;
+import com.example.budget.Stages.UsersCaughtStage;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -71,7 +72,7 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
     @Bind(R.id.check_in_button)
     public FloatingActionButton checkInButton;
 
-    @Bind(R.id.catch_pokemon_button)
+    @Bind(R.id.check_names)
     public FloatingActionButton catchPokemonButton;
 
     @Bind(R.id.i_dont_know_yet)
@@ -141,7 +142,7 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
 //                    Toast.makeText(context, "IT WORKEDDDDDD DUDED!!", Toast.LENGTH_SHORT).show();
-                    letsSeeThem();
+//                    letsSeeThem();
                 } else {
                     Toast.makeText(context, "This user has ceased to be active!", Toast.LENGTH_SHORT).show();
                 }
@@ -254,30 +255,39 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
         });
     }
 
-    public void letsSeeThem() {
-        RestClient restClient = new RestClient();
-        restClient.getApiService().caught().enqueue(new Callback<User[]>() {
-            @Override
-            public void onResponse(Call<User[]> call, Response<User[]> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(context, "Got them!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(context, "OH MY GOD!!!", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<User[]> call, Throwable t) {
-                Toast.makeText(context, "OH NOOOOOOO", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+//    public void letsSeeThem() {
+//        RestClient restClient = new RestClient();
+//        restClient.getApiService().caught().enqueue(new Callback<User[]>() {
+//            @Override
+//            public void onResponse(Call<User[]> call, Response<User[]> response) {
+//                if (response.isSuccessful()) {
+//                    Toast.makeText(context, "Got them!", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(context, "OH MY GOD!!!", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<User[]> call, Throwable t) {
+//                Toast.makeText(context, "OH NOOOOOOO", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     @OnClick(R.id.i_dont_know_yet)
     public void showEditProfileView() {
         Flow flow = PokemonApplication.getMainFlow();
         History newHistory = flow.getHistory().buildUpon()
                 .push(new EditProfileStage())
+                .build();
+        flow.setHistory(newHistory, Flow.Direction.FORWARD);
+    }
+
+    @OnClick(R.id.check_names)
+    public void showAddCategoryView(){
+        Flow flow = PokemonApplication.getMainFlow();
+        History newHistory = flow.getHistory().buildUpon()
+                .push(new UsersCaughtStage())
                 .build();
         flow.setHistory(newHistory, Flow.Direction.FORWARD);
     }

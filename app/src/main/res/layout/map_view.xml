@@ -20,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:fabSize="normal"
-                android:id="@+id/catch_pokemon_button"
+                android:id="@+id/check_names"
                 android:layout_gravity="bottom|start"
                 android:layout_margin="10dp"/>
 

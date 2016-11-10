@@ -7,7 +7,6 @@ import android.util.AttributeSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.example.budget.MainActivity;
@@ -41,7 +40,7 @@ public class EditProfileView extends LinearLayout {
     Button registerButton;
 
     @Bind(R.id.image_button)
-    ImageButton getAPic;
+    Button getAPic;
 
     public EditProfileView(Context context, AttributeSet attrs) {
         super(context, attrs);

@@ -27,7 +27,7 @@
         android:id="@+id/textView"
         android:gravity="center"/>
 
-    <ImageButton
+    <Button
         android:layout_width="170dp"
         android:layout_height="70dp"
         app:srcCompat="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"

@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-import static com.example.budget.R.id.list_caught;
-
 /**
  * Created by eaglebrosi on 11/10/16.
  */
@@ -25,7 +23,7 @@ import static com.example.budget.R.id.list_caught;
 // so then it takes that value to onCreateViewHolder which then binds it with the onBindViewHolder
 // then it goes to bindCategory.
 
-public class ListCaughtAdapter extends RecyclerView.Adapter <ListCaughtAdapter.ListCaughtHolder> {
+public class ListCaughtAdapter extends RecyclerView.Adapter<ListCaughtAdapter.ListCaughtHolder> {
     public ArrayList<User> caughtUsers;
     private Context context;
 
@@ -35,12 +33,11 @@ public class ListCaughtAdapter extends RecyclerView.Adapter <ListCaughtAdapter.L
         this.context = context;
     }
 
-
     @Override
     public ListCaughtHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View inflatedView = LayoutInflater.from(context).inflate(R.layout.caught_list_view, parent,
+        View inflateView = LayoutInflater.from(context).inflate(R.layout.users_caught_item, parent,
                 false);
-        return new ListCaughtHolder(inflatedView);
+        return new ListCaughtHolder(inflateView);
     }
 
     @Override
@@ -55,7 +52,8 @@ public class ListCaughtAdapter extends RecyclerView.Adapter <ListCaughtAdapter.L
     }
 
     class ListCaughtHolder extends RecyclerView.ViewHolder {
-        @Bind(list_caught)
+
+        @Bind(R.id.list_caught)
         TextView listCaught;
 
         public ListCaughtHolder(View usersCaught) {
@@ -64,7 +62,7 @@ public class ListCaughtAdapter extends RecyclerView.Adapter <ListCaughtAdapter.L
         }
 
         public void bindCaughtUser(User caughtUser) {
-            listCaught.setText(caughtUser.getUsername());
+            listCaught.setText(caughtUser.getNotAnEmail());
         }
     }
 }

@@ -1,31 +1,32 @@
 package com.example.budget.Stages;
 
+import android.app.Application;
+
 import com.davidstemmer.screenplay.stage.Stage;
 import com.example.budget.PokemonApplication;
 import com.example.budget.R;
 import com.example.budget.Riggers.VerticalSlideRigger;
-import com.example.budget.Views.CaughtListView;
 
 /**
  * Created by eaglebrosi on 11/10/16.
  */
 
-public class UsersCaught {
+public class UsersCaughtStage extends IndexedStage {
     private final VerticalSlideRigger rigger;
 
-    public UsersCaught(PokemonApplication context){
+    public UsersCaughtStage(Application context){
         super(MapStage.class.getName());
         // this is calling the Riggers/SlideRigger
         this.rigger = new VerticalSlideRigger(context);
     }
 
-    public UsersCaught() {
+    public UsersCaughtStage() {
         this(PokemonApplication.getInstance());
     }
 
     @Override
     public int getLayoutId() {
-        return R.layout.CaughtListView;
+        return R.layout.caught_list_view;
     }
 
     @Override
