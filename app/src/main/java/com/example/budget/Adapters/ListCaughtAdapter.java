@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static com.example.budget.R.id.list_caught;
+
 /**
  * Created by eaglebrosi on 11/10/16.
  */
@@ -28,118 +30,41 @@ public class ListCaughtAdapter extends RecyclerView.Adapter <ListCaughtAdapter.L
     private Context context;
 
     // simple constructor for the usernames.
-    public ListCaughtAdapter(ArrayList<User> caughtUsers, Context context){
+    public ListCaughtAdapter(ArrayList<User> caughtUsers, Context context) {
         this.caughtUsers = caughtUsers;
         this.context = context;
     }
 
-    public ArrayList<User> getCaughtUsers() {
-        return caughtUsers;
+
+    @Override
+    public ListCaughtHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View inflatedView = LayoutInflater.from(context).inflate(R.layout.caught_list_view, parent,
+                false);
+        return new ListCaughtHolder(inflatedView);
     }
 
-    public void setCaughtUsers(ArrayList<User> caughtUsers) {
-        this.caughtUsers = caughtUsers;
+    @Override
+    public void onBindViewHolder(ListCaughtHolder holder, int position) {
+        User caughtUser = caughtUsers.get(position);
+        holder.bindCaughtUser(caughtUser);
     }
 
-    public ListCaughtHolder onCreateViewHolder(View name) {
-
+    @Override
+    public int getItemCount() {
+        return caughtUsers == null ? 0 : caughtUsers.size();
     }
 
     class ListCaughtHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.user_name_field)
-        TextView user_name_field;
+        @Bind(list_caught)
+        TextView listCaught;
 
-        public ListCaughtHolder()
-    }
-
-
-    @Override
-    public void onBindViewHolder(ListCaughtAdapter.UserListHolder holder, int position) {
-
-    }
-
-    @Override
-    public void onBindViewHolder(UserListHolder holder, int position) {
-        User user = caughtUsers.get(position);
-        holder.bindUser(user);
-    }
-
-    getItemCount
-
-    }
-
-    @Override
-    public int getItemCount() {
-        return caughtUsers == null ? 0 : caughtUsers.size();
-    }
-
-    @Override
-    public UserListAdapter.UserListHolder onCreateViewHolder(ViewGroup parent, int viewType) {  //ctrl-i
-        View inflatedView = LayoutInflater.from(context)
-                .inflate(R.layout.caught_list_item, parent, false);
-        return new UserListAdapter.UserListHolder(inflatedView);
-    }
-
-
-    class UserListHolder extends RecyclerView.ViewHolder { //populates view
-
-        @Bind(R.id.user_name_field)
-        TextView nameField;
-
-
-        public UserListHolder(View itemView) { //ctrl-o
-            super(itemView);
-
-            ButterKnife.bind(this, itemView);
+        public ListCaughtHolder(View usersCaught) {
+            super(usersCaught);
+            ButterKnife.bind(this, usersCaught);
         }
 
-        public void bindUser(User user) {
-            nameField.setText(user.getCaughtUserId());
-        }
-    }
-
-
-    public UserListAdapter(ArrayList<User> caughtUsers, Context context) {
-        this.caughtUsers = caughtUsers;
-        this.context = context;
-    }
-
-
-    @Override
-    public void onBindViewHolder(UserListAdapter.UserListHolder holder, int position) {
-        User user = caughtUsers.get(position);
-        holder.bindUser(user);
-
-    }
-
-    @Override
-    public int getItemCount() {
-        return caughtUsers == null ? 0 : caughtUsers.size();
-    }
-
-    @Override
-    public UserListAdapter.UserListHolder onCreateViewHolder(ViewGroup parent, int viewType) {  //ctrl-i
-        View inflatedView = LayoutInflater.from(context)
-                .inflate(R.layout.caught_list_item, parent, false);
-        return new UserListAdapter.UserListHolder(inflatedView);
-    }
-
-
-    class UserListHolder extends RecyclerView.ViewHolder { //populates view
-
-        @Bind(R.id.user_name_field)
-        TextView nameField;
-
-
-        public UserListHolder(View itemView) { //ctrl-o
-            super(itemView);
-
-            ButterKnife.bind(this, itemView);
-        }
-
-        public void bindUser(User user) {
-            nameField.setText(user.getCaughtUserId());
+        public void bindCaughtUser(User caughtUser) {
+            listCaught.setText(caughtUser.getUsername());
         }
     }
 }
-*/

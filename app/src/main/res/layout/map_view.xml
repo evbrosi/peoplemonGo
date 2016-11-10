@@ -29,7 +29,6 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/check_in_button"
                 app:fabSize="normal"
-                app:backgroundTint="@android:color/holo_green_dark"
                 android:layout_gravity="bottom|end"
                 android:layout_margin="10dp"/>
 
@@ -38,7 +37,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/i_dont_know_yet"
             app:fabSize="normal"
-            app:backgroundTint="@android:color/holo_orange_light"
             android:layout_gravity="bottom|center"
             android:layout_margin="10dp"/>
 
