@@ -1,14 +1,12 @@
 package com.example.budget.Views;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -17,7 +15,9 @@ import com.example.budget.Components.Constants;
 import com.example.budget.MainActivity;
 import com.example.budget.Models.User;
 import com.example.budget.Network.RestClient;
+import com.example.budget.PokemonApplication;
 import com.example.budget.R;
+import com.example.budget.Stages.EditProfileStage;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -35,6 +35,9 @@ import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import flow.Flow;
+import flow.History;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -50,6 +53,17 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
     private Context context = getContext();
     public String pokemonName;
     public String pokemonId;
+    protected Location location;
+    public LatLng loc;
+    public GoogleMap mMap;
+    private GoogleApiClient mGoogleApiClient;
+    protected Location mLastLocation;
+    Handler handler = new Handler();
+    // on marker click override the on marker click
+    //this is the list of people who are nearby.
+    ArrayList<User> pokemon;
+    ArrayList<User> pokemonCaught;
+    Place currentPlace = null;
 
     @Bind(R.id.map)
     public MapView mapView;
@@ -63,18 +77,10 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
     @Bind(R.id.i_dont_know_yet)
     public FloatingActionButton unDecidedVoter;
 
-    public GoogleMap mMap;
-    private GoogleApiClient mGoogleApiClient;
-    protected Location mLastLocation;
-
-    // on marker click override the on marker click
-
-    //this is the list of people who are nearby.
-    ArrayList<User> pokemon;
-
-    ArrayList<User> pokemonCaught;
-
-    Place currentPlace = null;
+    public PeopleMapView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.context = context;
+    }
 
     @Override
     protected void onFinishInflate() {
@@ -96,24 +102,21 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
         mGoogleApiClient.connect();
     }
 
-    public PeopleMapView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.context,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
+//        if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.context,
+//                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+        handler.post(locationCheck);
     }
 
     @Override
@@ -136,7 +139,7 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
         restClient.getApiService().catchemAll(marker.getTitle(), Constants.radiusInMeters).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
 //                    Toast.makeText(context, "IT WORKEDDDDDD DUDED!!", Toast.LENGTH_SHORT).show();
                     letsSeeThem();
                 } else {
@@ -156,40 +159,61 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        //we set up the button.
-        mMap.getUiSettings().isMyLocationButtonEnabled();
-        // set the button to actually work.
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        // calls the location change method.
-
-        mMap.setOnMyLocationChangeListener(myLocationChangeLister);
+//        //we set up the button.
+//        mMap.getUiSettings().isMyLocationButtonEnabled();
+//        // set the button to actually work.
+//        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+//        // calls the location change method.
 
         try {
             mMap.setMyLocationEnabled(true);
         } catch (SecurityException e) {
+            Toast.makeText(context, "error, location services failed.", Toast.LENGTH_SHORT).show();
         }
-
+        mMap.clear();
         mMap.setOnMarkerClickListener(this);
-//        mMap.clear();
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 
-    private GoogleMap.OnMyLocationChangeListener myLocationChangeLister = new GoogleMap.OnMyLocationChangeListener() {
+
+    Runnable locationCheck = new Runnable() {
         @Override
-        public void onMyLocationChange(Location location) {
-            LatLng loc = new LatLng(location.getLongitude(), location.getLatitude());
+        public void run() {
+            try {
+                try {
+                    mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
+                    if (mLastLocation != null) {
+                        // instead of constantly updating location every few seconds I put it on the right hand pink button.
+                       // updateLocation();
+                    }
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                }
+            } finally {
+                handler.postDelayed(this, 8000);
+            }
+        }
+    };
+
+    // set my check in to a the bottom right button!
+    @OnClick(R.id.check_in_button)
+    public void updateLocation() {
+        if (location != null) {
+            updateLocation();
+        } else {
+            loc = new LatLng(mLastLocation.getLongitude(), mLastLocation.getLatitude());
             mMap.addMarker(new MarkerOptions().position(loc));
-                    //.icon(BitmapDescriptorFactory.fromResource(R.mipmap.banana_gram));
+            //.icon(BitmapDescriptorFactory.fromResource(R.mipmap.banana_gram));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 16.0f));
-
             final RestClient restClient = new RestClient();
             // we call a Void because we aren't getting information- just giving info.
             restClient.getApiService().CheckIn(loc).enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
-                    if(response.isSuccessful()){
+                    if (response.isSuccessful()) {
                         // now that are check in works- we check to see if there's any programmers nearby.
+                        Toast.makeText(context, "You checked in!", Toast.LENGTH_SHORT).show();
                         checkForNearby();
                     } else {
                         Toast.makeText(context, "we got problems", Toast.LENGTH_SHORT).show();
@@ -203,9 +227,9 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
             });
             mMap.clear();
         }
-    };
+    }
 
-    public void checkForNearby (){
+    public void checkForNearby() {
         final RestClient restClient = new RestClient();
         restClient.getApiService().nearby(Constants.radiusInMeters).enqueue(new Callback<User[]>() {
             @Override
@@ -218,10 +242,11 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                         pokemonName = nearby.getNotAnEmail();
                         LatLng loc = new LatLng(nearby.getLatitude(), nearby.getLongitude());
                         mMap.addMarker(new MarkerOptions().title(pokemonId).position(loc));
-                   //   then we go to our onmarkerclick
+                        //   then we go to our onmarkerclick
                     }
                 }
             }
+
             @Override
             public void onFailure(Call<User[]> call, Throwable t) {
                 Toast.makeText(context, "YOU ARE A FAILURE!!!!", Toast.LENGTH_SHORT).show();
@@ -229,13 +254,13 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
         });
     }
 
-    public void letsSeeThem(){
+    public void letsSeeThem() {
         RestClient restClient = new RestClient();
         restClient.getApiService().caught().enqueue(new Callback<User[]>() {
             @Override
             public void onResponse(Call<User[]> call, Response<User[]> response) {
-                if(response.isSuccessful()){
-                    Toast.makeText(context, "Hurray!", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "Got them!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(context, "OH MY GOD!!!", Toast.LENGTH_SHORT).show();
                 }
@@ -246,5 +271,14 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                 Toast.makeText(context, "OH NOOOOOOO", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @OnClick(R.id.i_dont_know_yet)
+    public void showEditProfileView() {
+        Flow flow = PokemonApplication.getMainFlow();
+        History newHistory = flow.getHistory().buildUpon()
+                .push(new EditProfileStage())
+                .build();
+        flow.setHistory(newHistory, Flow.Direction.FORWARD);
     }
 }
