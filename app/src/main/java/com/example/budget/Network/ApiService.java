@@ -44,7 +44,6 @@ public interface ApiService {
     @GET("v1/User/Caught")
     Call <User[]> caught();
 
-
    // @POST("api/Account/UserInfo")
   //  Call<User> edit(@Field("fullName")) String fullName, @Field(avatarBase64())
 }

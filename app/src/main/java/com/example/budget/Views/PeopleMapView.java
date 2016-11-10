@@ -67,16 +67,14 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
     private GoogleApiClient mGoogleApiClient;
     protected Location mLastLocation;
 
+    // on marker click override the on marker click
+
     //this is the list of people who are nearby.
     ArrayList<User> pokemon;
 
     ArrayList<User> pokemonCaught;
 
     Place currentPlace = null;
-
-//    private GoogleApiClient mGoogleApiClient;
-
-    //   public static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onFinishInflate() {
@@ -116,8 +114,6 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
     }
 
     @Override
@@ -132,25 +128,25 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-
-        Toast.makeText(context, "You caught " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "You caught " + marker.getTitle(), Toast.LENGTH_SHORT).show();
         // We remove the ability to catch them again.
         marker.remove();
-        User pokemonCatch = new User(marker.getSnippet(), Constants.radiusInMeters);
+//        User pokemonCatch = new User(marker.getTitle(), Constants.radiusInMeters);
         RestClient restClient = new RestClient();
-        restClient.getApiService().catchemAll(pokemonId, Constants.radiusInMeters).enqueue(new Callback<Void>() {
+        restClient.getApiService().catchemAll(marker.getTitle(), Constants.radiusInMeters).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if(response.isSuccessful()){
-                    Toast.makeText(context, "IT WORKEDDDDDD DUDED!!", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, "IT WORKEDDDDDD DUDED!!", Toast.LENGTH_SHORT).show();
+                    letsSeeThem();
                 } else {
-                    Toast.makeText(context, "NOOOOOOOoooooooo!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "This user has ceased to be active!", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(context, "help me you loser!", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Error", Toast.LENGTH_LONG).show();
             }
         });
         return true;
@@ -172,6 +168,8 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
             mMap.setMyLocationEnabled(true);
         } catch (SecurityException e) {
         }
+
+        mMap.setOnMarkerClickListener(this);
 //        mMap.clear();
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
@@ -191,7 +189,6 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if(response.isSuccessful()){
-                        Toast.makeText(context, "DUDE- IT FREAKING WORKED", Toast.LENGTH_SHORT).show();
                         // now that are check in works- we check to see if there's any programmers nearby.
                         checkForNearby();
                     } else {
@@ -220,8 +217,8 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                         pokemonId = nearby.getUserId();
                         pokemonName = nearby.getNotAnEmail();
                         LatLng loc = new LatLng(nearby.getLatitude(), nearby.getLongitude());
-                        mMap.addMarker(new MarkerOptions().title(pokemonName).position(loc));
-                      catchThemAll();
+                        mMap.addMarker(new MarkerOptions().title(pokemonId).position(loc));
+                   //   then we go to our onmarkerclick
                     }
                 }
             }
@@ -232,40 +229,13 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
         });
     }
 
-    public void catchThemAll(){
-         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                // We remove the ability to catch them again.
-                RestClient restClient = new RestClient();
-                restClient.getApiService().catchemAll(pokemonId, Constants.radiusInMeters).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(context, "Got'em!", Toast.LENGTH_SHORT).show();
-                            letsSeeThem();
-                        } else {
-                            Toast.makeText(context, "NOOOOOOOoooooooo!!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        Toast.makeText(context, "help me you loser!", Toast.LENGTH_LONG).show();
-                    }
-                });
-                marker.remove();
-                return true;
-            }
-        });
-    }
-
     public void letsSeeThem(){
         RestClient restClient = new RestClient();
         restClient.getApiService().caught().enqueue(new Callback<User[]>() {
             @Override
             public void onResponse(Call<User[]> call, Response<User[]> response) {
                 if(response.isSuccessful()){
-                    Toast.makeText(context, "YOU DID IT!!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Hurray!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(context, "OH MY GOD!!!", Toast.LENGTH_SHORT).show();
                 }
