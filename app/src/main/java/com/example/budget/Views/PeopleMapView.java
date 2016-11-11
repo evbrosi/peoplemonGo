@@ -157,6 +157,28 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
 //                    Toast.makeText(context, "IT WORKEDDDDDD DUDED!!", Toast.LENGTH_SHORT).show();
 //                    letsSeeThem();
 
+                    
+
+                    // todo animate for 5 seconds.
+                    final Circle circle = mMap.addCircle(new CircleOptions().center(loc)
+                            .strokeColor(Color.RED).radius(50));
+                    ValueAnimator vAnimator = new ValueAnimator();
+                    vAnimator.setRepeatCount(ValueAnimator.INFINITE);
+                    vAnimator.setRepeatMode(ValueAnimator.RESTART);  /* PULSE */
+                    vAnimator.setIntValues(80, 0);
+                    vAnimator.setDuration(500);
+                    vAnimator.setEvaluator(new IntEvaluator());
+                    vAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+                    vAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                            float animatedFraction = valueAnimator.getAnimatedFraction();
+                            // Log.e("", "" + animatedFraction);
+                            circle.setRadius(animatedFraction * 80);
+                        }
+                    });
+                    vAnimator.start();
+
                 } else {
                     Toast.makeText(context, "This user has ceased to be active!", Toast.LENGTH_SHORT).show();
                 }
@@ -277,7 +299,7 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                         GroundOverlay imageOverlay = mMap.addGroundOverlay(radar);
                         // now we provide an animated circle for the radar.
                         final Circle circle = mMap.addCircle(new CircleOptions().center(loc)
-                                .strokeColor(Color.BLUE).radius(80));
+                                .strokeColor(Color.BLUE).radius(500));
                         ValueAnimator vAnimator = new ValueAnimator();
                         vAnimator.setRepeatCount(ValueAnimator.INFINITE);
                         vAnimator.setRepeatMode(ValueAnimator.RESTART);  /* PULSE */
