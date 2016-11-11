@@ -11,13 +11,14 @@
         android:hint="change username"
         android:ems="10"
         android:id="@+id/displayname_field"
+
         android:layout_gravity="center_horizontal"/>
 
     <Button
         android:text="save changes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/register_button"
+        android:id="@+id/change_button"
         android:layout_gravity="center_horizontal"/>
 
     <TextView
@@ -28,10 +29,15 @@
         android:gravity="center"/>
 
     <Button
-        android:layout_width="170dp"
-        android:layout_height="70dp"
-        app:srcCompat="@drawable/cast_expanded_controller_actionbar_bg_gradient_light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/image_button"
+        android:text="Upload the new image"
         android:layout_gravity="center"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:id="@+id/imageView" />
 
 </com.example.budget.Views.EditProfileView>

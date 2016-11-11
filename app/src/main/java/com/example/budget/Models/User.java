@@ -25,7 +25,7 @@ public class User {
     @SerializedName("email")
     private String email;
 
-    @SerializedName("fullname")
+    @SerializedName("FullName")
     private String name;
 
     @SerializedName("password")
@@ -40,7 +40,7 @@ public class User {
     @SerializedName("apiKey")
     private String apiKey;
 
-    @SerializedName("avatar64")
+    @SerializedName("AvatarBase64")
     private String avatar64;
 
     @SerializedName("grantType")
@@ -56,6 +56,12 @@ public class User {
     private Date created;
 
     private int radius;
+
+    //for changing user info.
+    public User (String name, String avatar64){
+        this.name = name;
+        this.avatar64 = avatar64;
+    }
 
     // for Loggin in at Auth but I couldn't use it because email has to be identified as USERNAME
     public User(String username, String password, String grantType) {

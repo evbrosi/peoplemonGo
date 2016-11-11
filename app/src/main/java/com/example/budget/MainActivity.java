@@ -1,6 +1,7 @@
 package com.example.budget;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -38,6 +39,7 @@ import flow.History;
 import static com.example.budget.PokemonApplication.getMainFlow;
 
 public class MainActivity extends AppCompatActivity {
+    private Context context;
     private String TAG = "MainActivity";
     // flow holds the data of what is where!
     private Flow flow;
@@ -135,10 +137,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getImage(){
+     //   android.provider.
         Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(galleryIntent, RESULT_LOAD_IMAGE);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -156,8 +158,6 @@ public class MainActivity extends AppCompatActivity {
                 String imageString = cursor.getString(columnIndex);
                 cursor.close();
 
-                EventBus.getDefault().post(new ImageLoadedEvent(imageString));
-
                 //Convert to Bitmap Array
                 Bitmap bm = BitmapFactory.decodeFile(imageString);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -167,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
                 //Take the bitmap Array and encode it to Base64
                 String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
 
+
+                EventBus.getDefault().post(new ImageLoadedEvent(imageString));
 
             } else {
                 Toast.makeText(this, "didn't work", Toast.LENGTH_SHORT).show();

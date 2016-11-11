@@ -30,8 +30,9 @@ public interface ApiService {
     @POST("v1/User/CheckIn")
     Call<Void> CheckIn(@Body LatLng loc);
 
+    @FormUrlEncoded
     @POST("api/Account/UserInfo")
-    Call <Void> postUserInfo(@Body User user);
+    Call <User> userInfo(@Body User changeInfo);
 
     @GET("v1/User/Nearby")
     Call <User[]> nearby(@Query ("radiusInMeters") Integer radius);
