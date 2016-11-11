@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.context = this;
         // we have to have this line. It won't call the container and it'll be empty!
         ButterKnife.bind(this);
 
@@ -83,13 +84,18 @@ public class MainActivity extends AppCompatActivity {
             flow.setHistory(newHistory, Flow.Direction.REPLACE);
         }
 
-        //COMMENT OUT THIS FILE!
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (!(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+        //permissions, yo.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
-            if (!(ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
+            if ((ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
+
+            if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
             }
         }
     }
@@ -165,13 +171,13 @@ public class MainActivity extends AppCompatActivity {
                 cursor.close();
 
                 //Convert to Bitmap Array
-                Bitmap bm = BitmapFactory.decodeFile(imageString);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
-                byte[] b = baos.toByteArray();
+                Bitmap pic = BitmapFactory.decodeFile(imageString);
+                ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+                pic.compress(Bitmap.CompressFormat.JPEG, 100, byteArray); //bm is the bitmap object
+                byte[] bytes = byteArray.toByteArray();
 
                 //Take the bitmap Array and encode it to Base64
-                String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+                String encodedImage = Base64.encodeToString(bytes, Base64.DEFAULT);
 
                 Log.d("@@@@@@@@@@@@@@@", encodedImage);
                 editProfile(encodedImage);
@@ -183,11 +189,13 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             Toast.makeText(this, "DIDN'T WORK!!!", Toast.LENGTH_SHORT).show();
+
         }
     }
 
     private void editProfile(String imageString){
-        User editPic = new User(imageString, null);
+        User editPic = new User(null, imageString);
+
         RestClient restClient = new RestClient();
         restClient.getApiService().userInfo(editPic).enqueue(new Callback<Void>() {
             @Override
@@ -196,12 +204,12 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()){
                     Toast.makeText(context, "Image uploaded to the clouds successfully!", Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(context,"Error: " + response.code(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context,"Error: ", Toast.LENGTH_LONG).show();
                 }
             }
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(context,"you are a terrible human being.", Toast.LENGTH_LONG).show();
+                Toast.makeText(context,"server error.", Toast.LENGTH_LONG).show();
             }
         });
     }

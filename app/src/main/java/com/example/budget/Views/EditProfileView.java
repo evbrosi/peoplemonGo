@@ -66,7 +66,7 @@ public class EditProfileView extends LinearLayout {
     }
 
     @OnClick(R.id.change_button)
-    public void login() {
+    public void changeInfo() {
         //dropa the keyboard off the screen when the user hits the button.
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(changeName.getWindowToken(), 0);
@@ -74,7 +74,9 @@ public class EditProfileView extends LinearLayout {
         // gets the value from each text field.
         String fullname = changeName.getText().toString();
 
-        User changeInfo = new  User(fullname, Constants.avatarPlaceHolder);
+    //    ((MainActivity)context).editProfile(fullname);
+
+        User changeInfo = new  User(Constants.avatarPlaceHolder, fullname);
         RestClient restClient = new RestClient();
         restClient.getApiService().userInfo(changeInfo).enqueue(new Callback<Void>() {
             @Override
@@ -85,7 +87,6 @@ public class EditProfileView extends LinearLayout {
                     Toast.makeText(context, "Couldn't upload picture.", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 Toast.makeText(context, "Call failed", Toast.LENGTH_SHORT).show();

@@ -3,6 +3,8 @@ package com.example.budget.Views;
 import android.animation.IntEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -51,6 +54,8 @@ import flow.History;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.google.android.gms.analytics.internal.zzy.t;
 
 /**
  * Created by eaglebrosi on 10/31/16.
@@ -152,6 +157,7 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                 if (response.isSuccessful()) {
 //                    Toast.makeText(context, "IT WORKEDDDDDD DUDED!!", Toast.LENGTH_SHORT).show();
 //                    letsSeeThem();
+
                 } else {
                     Toast.makeText(context, "This user has ceased to be active!", Toast.LENGTH_SHORT).show();
                 }
@@ -275,38 +281,28 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                     for (User nearby : pokemon) {
                         pokemonId = nearby.getUserId();
                         pokemonName = nearby.getNotAnEmail();
+
+                        //Okay, I'm really proud of this code, people were putting strings of
+                        if(nearby.getAvatarBase64().length()>100){
+
+                            String encodedImage = nearby.getAvatarBase64();
+                            byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                            // this makes the images smaller, where they need to be.
+                            decodedByte = Bitmap.createScaledBitmap(decodedByte, 120, 120, false);
                         LatLng loc = new LatLng(nearby.getLatitude(), nearby.getLongitude());
                         mMap.addMarker(new MarkerOptions().title(pokemonId).position(loc));
                         //   then we go to our onmarkerclick
                     }
                 }
             }
-
             @Override
             public void onFailure(Call<User[]> call, Throwable t) {
                 Toast.makeText(context, "YOU ARE A FAILURE!!!!", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-//    public void letsSeeThem() {
-//        RestClient restClient = new RestClient();
-//        restClient.getApiService().caught().enqueue(new Callback<User[]>() {
-//            @Override
-//            public void onResponse(Call<User[]> call, Response<User[]> response) {
-//                if (response.isSuccessful()) {
-//                    Toast.makeText(context, "Got them!", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    Toast.makeText(context, "OH MY GOD!!!", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<User[]> call, Throwable t) {
-//                Toast.makeText(context, "OH NOOOOOOO", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
 
     @OnClick(R.id.i_dont_know_yet)
     public void showEditProfileView() {
@@ -324,5 +320,137 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                 .push(new UsersCaughtStage())
                 .build();
         flow.setHistory(newHistory, Flow.Direction.FORWARD);
+    }
+
+
+
+
+    if(user.getAvatarBase64().length()>100){
+
+        String encodedImage = user.getAvatarBase64();
+        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+        decodedByte = Bitmap.createScaledBitmap(decodedByte, 120, 120, false);
+
+
+
+
+
+
+        final LatLng userpos = new LatLng(lat, lng);
+        mMap.addMarker(new MarkerOptions().title(user.getUserName())
+                .icon(BitmapDescriptorFactory.fromBitmap(decodedByte))
+                .snippet(user.getUserId())
+                .position(userpos));
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                //Toast.makeText(context, "You caught " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
+                Location userLoc = new Location("");
+                userLoc.setLatitude(marker.getPosition().latitude);
+                userLoc.setLongitude(marker.getPosition().longitude);
+                final String CaughtUserId = marker.getSnippet();
+                final User user = new User(CaughtUserId, mLocation.distanceTo(userLoc));
+                RestClient restClient = new RestClient();
+                restClient.getApiService().catchUser(user).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(context, "Person Caught!", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(context,"That person is out side your radius", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+                marker.remove();
+                return false;
+            }
+        });
+
+    }       if(user.getAvatarBase64() == null || user.getAvatarBase64().length()<=100){
+
+        final LatLng userpos = new LatLng(lat, lng);
+        mMap.addMarker(new MarkerOptions().title(user.getUserName())
+                //           .icon(BitmapDescriptorFactory.fromBitmap(decodedByte))
+                .snippet(user.getUserId())
+                .position(userpos));
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                //Toast.makeText(context, "You caught " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
+                Location userLoc = new Location("");
+                userLoc.setLatitude(marker.getPosition().latitude);
+                userLoc.setLongitude(marker.getPosition().longitude);
+                final String CaughtUserId = marker.getSnippet();
+                final User user = new User(CaughtUserId, mLocation.distanceTo(userLoc));
+                RestClient restClient = new RestClient();
+                restClient.getApiService().catchUser(user).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(context, "Person Caught!", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(context,"That person is out side your radius", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+                marker.remove();
+                return false;
+            }
+        });
+    }else
+
+    {
+
+        String encodedImage = user.getAvatarBase64();
+        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+        decodedByte = Bitmap.createScaledBitmap(decodedByte, 120, 120, false);
+
+        final LatLng userpos = new LatLng(lat, lng);
+        mMap.addMarker(new MarkerOptions().title(user.getUserName())
+                .icon(BitmapDescriptorFactory.fromBitmap(decodedByte))
+                .snippet(user.getUserId())
+                .position(userpos));
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                //Toast.makeText(context, "You caught " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
+                Location userLoc = new Location("");
+                userLoc.setLatitude(marker.getPosition().latitude);
+                userLoc.setLongitude(marker.getPosition().longitude);
+                final String CaughtUserId = marker.getSnippet();
+                final User user = new User(CaughtUserId, mLocation.distanceTo(userLoc));
+                RestClient restClient = new RestClient();
+                restClient.getApiService().catchUser(user).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(context, "Person Caught!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(context, "That person is out side your radius", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+                marker.remove();
+                return false;
+            }
+        });
+
     }
 }
