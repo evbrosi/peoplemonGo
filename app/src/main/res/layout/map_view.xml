@@ -29,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/check_in_button"
                 app:fabSize="normal"
+                android:src="@mipmap/radar_circle"
                 android:layout_gravity="bottom|end"
                 android:layout_margin="10dp"/>
 

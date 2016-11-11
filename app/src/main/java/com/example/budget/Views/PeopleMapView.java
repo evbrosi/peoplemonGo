@@ -195,7 +195,7 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
 
                     if (mLastLocation != null) {
                         // instead of constantly updating location every few seconds I put it on the right hand pink button.
-                       // updateLocation();
+                     //  updateLocation();
                     }
                 } catch (SecurityException e) {
                     e.printStackTrace();

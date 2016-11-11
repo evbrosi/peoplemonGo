@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
@@ -22,6 +23,8 @@ import android.widget.Toast;
 
 import com.davidstemmer.flow.plugin.screenplay.ScreenplayDispatcher;
 import com.example.budget.Models.ImageLoadedEvent;
+import com.example.budget.Models.User;
+import com.example.budget.Network.RestClient;
 import com.example.budget.Network.UserStore;
 import com.example.budget.Stages.EditProfileStage;
 import com.example.budget.Stages.LoginStage;
@@ -35,6 +38,9 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import flow.Flow;
 import flow.History;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.example.budget.PokemonApplication.getMainFlow;
 
@@ -167,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
                 //Take the bitmap Array and encode it to Base64
                 String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
 
+                Log.d("@@@@@@@@@@@@@@@", encodedImage);
+                editProfile(encodedImage);
 
                 EventBus.getDefault().post(new ImageLoadedEvent(imageString));
 
@@ -176,5 +184,25 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, "DIDN'T WORK!!!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void editProfile(String imageString){
+        User editPic = new User(imageString, null);
+        RestClient restClient = new RestClient();
+        restClient.getApiService().userInfo(editPic).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                // Is the server response between 200 to 299
+                if (response.isSuccessful()){
+                    Toast.makeText(context, "Image uploaded to the clouds successfully!", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(context,"Error: " + response.code(), Toast.LENGTH_LONG).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(context,"you are a terrible human being.", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
