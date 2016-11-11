@@ -33,6 +33,9 @@ public interface ApiService {
     @POST("api/Account/UserInfo")
     Call <Void> userInfo(@Body User user);
 
+    @GET("/api/Account/UserInfo")
+    Call<User>getUserInfo();
+
     @GET("v1/User/Nearby")
     Call <User[]> nearby(@Query ("radiusInMeters") Integer radius);
 

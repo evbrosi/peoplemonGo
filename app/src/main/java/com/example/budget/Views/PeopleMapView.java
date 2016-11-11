@@ -71,6 +71,7 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
     public GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     protected Location mLastLocation;
+    private Bitmap customAvatar;
     Handler handler = new Handler();
     // on marker click override the on marker click
     //this is the list of people who are nearby.
@@ -173,21 +174,62 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        RestClient restClient = new RestClient();
+        restClient.getApiService().getUserInfo().enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    User user = response.body();
+                    if ((user.getAvatar64() == null) || (user.getAvatar64().length() <= 50)) {
+                        try {
+                            mMap.setMyLocationEnabled(true);
+                        } catch (SecurityException e) {
+                            Toast.makeText(context, "error, location services failed.", Toast.LENGTH_SHORT).show();
+                        }
+                        mMap.clear();
+//                        mMap.setOnMarkerClickListener(this);
+                        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    } else {
+                        String encodedImage = user.getAvatar64();
+                        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        decodedByte = Bitmap.createScaledBitmap(decodedByte, 160, 160, false);
+                        customAvatar = decodedByte;
+                        try {
+                            mMap.setMyLocationEnabled(true);
+                        } catch (SecurityException e) {
+                            Toast.makeText(context, "error, location services failed.", Toast.LENGTH_SHORT).show();
+                        }
+                        if(loc != null) {
+                            mMap.clear();
+                            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(loc)
+                                    .title("Me")
+                                    .icon(BitmapDescriptorFactory.fromBitmap(decodedByte)));
+                        } else {
+                            loc = new LatLng(37.8163, -82.8095);
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, "failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
+    }
+
 //        //we set up the button.
 //        mMap.getUiSettings().isMyLocationButtonEnabled();
 //        // set the button to actually work.
 //        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 //        // calls the location change method.
 
-        try {
-            mMap.setMyLocationEnabled(true);
-        } catch (SecurityException e) {
-            Toast.makeText(context, "error, location services failed.", Toast.LENGTH_SHORT).show();
-        }
-        mMap.clear();
-        mMap.setOnMarkerClickListener(this);
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-    }
+
 
 
     Runnable locationCheck = new Runnable() {
