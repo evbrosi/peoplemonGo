@@ -157,7 +157,7 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
 //                    Toast.makeText(context, "IT WORKEDDDDDD DUDED!!", Toast.LENGTH_SHORT).show();
 //                    letsSeeThem();
 
-                    
+
 
                     // todo animate for 5 seconds.
                     final Circle circle = mMap.addCircle(new CircleOptions().center(loc)

@@ -55,7 +55,8 @@ public class NearbyView extends LinearLayout {
             @Override
             public void onResponse(Call<User[]> call, Response<User[]> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(context, "a wild sweet sweet baby appears", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "A wild sweet sweet baby appears", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Be sure to scroll down. It's a fun time when you scroll down.", Toast.LENGTH_LONG).show();
                     listNearbyAdapter.nearbyUsers = new ArrayList<>(Arrays.asList(response.body()));
                     for (User user : listNearbyAdapter.nearbyUsers) {
                         listNearbyAdapter.notifyDataSetChanged();
