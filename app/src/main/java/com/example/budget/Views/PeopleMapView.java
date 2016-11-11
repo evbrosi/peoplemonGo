@@ -55,8 +55,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.google.android.gms.analytics.internal.zzy.t;
-
 /**
  * Created by eaglebrosi on 10/31/16.
  */
@@ -282,18 +280,35 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                         pokemonId = nearby.getUserId();
                         pokemonName = nearby.getNotAnEmail();
 
-                        //Okay, I'm really proud of this code, people were putting strings of
-                        if(nearby.getAvatarBase64().length()>100){
+                        //Okay, I'm really proud of this code, people were putting "string" or "null" or whatever as
+                        //their avatar64 and i got tired of checking for it- so it the length is less than 50 we assume
+                        //that they don't have a nice image.
+                        if ((nearby.getAvatar64() == null) || (nearby.getAvatar64().length() <= 50)){
+                            //if they don't have a cool image- they get a dumb thing.
+                            LatLng loc = new LatLng(nearby.getLatitude(), nearby.getLongitude());
+                            mMap.addMarker(new MarkerOptions().title(pokemonId).position(loc));
+                            //   then we go to our onmarkerclick
+                        } else {
 
-                            String encodedImage = nearby.getAvatarBase64();
+                            String encodedImage = nearby.getAvatar64();
                             byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
                             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
                             // this makes the images smaller, where they need to be.
-                            decodedByte = Bitmap.createScaledBitmap(decodedByte, 120, 120, false);
-                        LatLng loc = new LatLng(nearby.getLatitude(), nearby.getLongitude());
-                        mMap.addMarker(new MarkerOptions().title(pokemonId).position(loc));
-                        //   then we go to our onmarkerclick
+                            // decodedByte = Bitmap.createScaledBitmap(decodedByte, 120, 120, false);
+                            try {
+                                decodedByte = Bitmap.createScaledBitmap(decodedByte, 120, 120, false);
+
+                                LatLng loc = new LatLng(nearby.getLatitude(), nearby.getLongitude());
+                                //            mMap.addMarker(new MarkerOptions().title(pokemonId).position(loc));
+                                mMap.addMarker(new MarkerOptions().title(pokemonId)
+                                        .icon(BitmapDescriptorFactory.fromBitmap(decodedByte))
+                                        .snippet(nearby.getUserId())
+                                        .position(loc));
+                            } catch (Exception e) {
+//                                Log.e(PeopleMapView.class.getSimpleName(), e.toString());
+                            }
+                        }
                     }
                 }
             }
@@ -320,137 +335,5 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
                 .push(new UsersCaughtStage())
                 .build();
         flow.setHistory(newHistory, Flow.Direction.FORWARD);
-    }
-
-
-
-
-    if(user.getAvatarBase64().length()>100){
-
-        String encodedImage = user.getAvatarBase64();
-        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-        decodedByte = Bitmap.createScaledBitmap(decodedByte, 120, 120, false);
-
-
-
-
-
-
-        final LatLng userpos = new LatLng(lat, lng);
-        mMap.addMarker(new MarkerOptions().title(user.getUserName())
-                .icon(BitmapDescriptorFactory.fromBitmap(decodedByte))
-                .snippet(user.getUserId())
-                .position(userpos));
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                //Toast.makeText(context, "You caught " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
-                Location userLoc = new Location("");
-                userLoc.setLatitude(marker.getPosition().latitude);
-                userLoc.setLongitude(marker.getPosition().longitude);
-                final String CaughtUserId = marker.getSnippet();
-                final User user = new User(CaughtUserId, mLocation.distanceTo(userLoc));
-                RestClient restClient = new RestClient();
-                restClient.getApiService().catchUser(user).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(context, "Person Caught!", Toast.LENGTH_SHORT).show();
-                        }else{
-                            Toast.makeText(context,"That person is out side your radius", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
-                marker.remove();
-                return false;
-            }
-        });
-
-    }       if(user.getAvatarBase64() == null || user.getAvatarBase64().length()<=100){
-
-        final LatLng userpos = new LatLng(lat, lng);
-        mMap.addMarker(new MarkerOptions().title(user.getUserName())
-                //           .icon(BitmapDescriptorFactory.fromBitmap(decodedByte))
-                .snippet(user.getUserId())
-                .position(userpos));
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                //Toast.makeText(context, "You caught " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
-                Location userLoc = new Location("");
-                userLoc.setLatitude(marker.getPosition().latitude);
-                userLoc.setLongitude(marker.getPosition().longitude);
-                final String CaughtUserId = marker.getSnippet();
-                final User user = new User(CaughtUserId, mLocation.distanceTo(userLoc));
-                RestClient restClient = new RestClient();
-                restClient.getApiService().catchUser(user).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(context, "Person Caught!", Toast.LENGTH_SHORT).show();
-                        }else{
-                            Toast.makeText(context,"That person is out side your radius", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
-                marker.remove();
-                return false;
-            }
-        });
-    }else
-
-    {
-
-        String encodedImage = user.getAvatarBase64();
-        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-        decodedByte = Bitmap.createScaledBitmap(decodedByte, 120, 120, false);
-
-        final LatLng userpos = new LatLng(lat, lng);
-        mMap.addMarker(new MarkerOptions().title(user.getUserName())
-                .icon(BitmapDescriptorFactory.fromBitmap(decodedByte))
-                .snippet(user.getUserId())
-                .position(userpos));
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                //Toast.makeText(context, "You caught " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
-                Location userLoc = new Location("");
-                userLoc.setLatitude(marker.getPosition().latitude);
-                userLoc.setLongitude(marker.getPosition().longitude);
-                final String CaughtUserId = marker.getSnippet();
-                final User user = new User(CaughtUserId, mLocation.distanceTo(userLoc));
-                RestClient restClient = new RestClient();
-                restClient.getApiService().catchUser(user).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(context, "Person Caught!", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(context, "That person is out side your radius", Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
-                marker.remove();
-                return false;
-            }
-        });
-
     }
 }

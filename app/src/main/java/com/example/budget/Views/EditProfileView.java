@@ -76,7 +76,7 @@ public class EditProfileView extends LinearLayout {
 
     //    ((MainActivity)context).editProfile(fullname);
 
-        User changeInfo = new  User(Constants.avatarPlaceHolder, fullname);
+        User changeInfo = new  User(fullname, Constants.avatarPlaceHolder);
         RestClient restClient = new RestClient();
         restClient.getApiService().userInfo(changeInfo).enqueue(new Callback<Void>() {
             @Override

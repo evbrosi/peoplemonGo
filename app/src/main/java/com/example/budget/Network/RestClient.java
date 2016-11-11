@@ -7,7 +7,6 @@ import com.google.gson.GsonBuilder;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -24,13 +23,13 @@ public class RestClient {
         builder.setDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
         Gson gson = builder.create();
 
-        HttpLoggingInterceptor log = new HttpLoggingInterceptor();
-        log.setLevel(HttpLoggingInterceptor.Level.BODY);
+//        HttpLoggingInterceptor log = new HttpLoggingInterceptor();
+//        log.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .addInterceptor(new SessionRequestInterceptor())
-                .addInterceptor(log)
+//                .addInterceptor(log)
                 .build();
 
         Retrofit restAdapter = new Retrofit.Builder()

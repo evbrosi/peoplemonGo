@@ -15,7 +15,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
@@ -178,8 +177,8 @@ public class MainActivity extends AppCompatActivity {
 
                 //Take the bitmap Array and encode it to Base64
                 String encodedImage = Base64.encodeToString(bytes, Base64.DEFAULT);
-
-                Log.d("@@@@@@@@@@@@@@@", encodedImage);
+//
+//                Log.d("@@@@@@@@@@@@@@@", encodedImage);
                 editProfile(encodedImage);
 
                 EventBus.getDefault().post(new ImageLoadedEvent(imageString));
