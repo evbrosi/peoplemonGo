@@ -24,8 +24,8 @@ import com.example.budget.Models.User;
 import com.example.budget.Network.RestClient;
 import com.example.budget.PokemonApplication;
 import com.example.budget.R;
-import com.example.budget.Stages.EditProfileStage;
 import com.example.budget.Stages.UsersCaughtStage;
+import com.example.budget.Stages.UsersNearbyStage;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -320,10 +320,10 @@ public class PeopleMapView extends RelativeLayout implements OnMapReadyCallback,
     }
 
     @OnClick(R.id.i_dont_know_yet)
-    public void showEditProfileView() {
+    public void showNearbyView() {
         Flow flow = PokemonApplication.getMainFlow();
         History newHistory = flow.getHistory().buildUpon()
-                .push(new EditProfileStage())
+                .push(new UsersNearbyStage())
                 .build();
         flow.setHistory(newHistory, Flow.Direction.FORWARD);
     }
