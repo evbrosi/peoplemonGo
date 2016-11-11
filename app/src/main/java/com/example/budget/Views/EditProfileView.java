@@ -4,13 +4,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.example.budget.Components.Constants;
 import com.example.budget.MainActivity;
 import com.example.budget.Models.ImageLoadedEvent;
+import com.example.budget.Models.User;
+import com.example.budget.Network.RestClient;
 import com.example.budget.R;
 
 import org.greenrobot.eventbus.EventBus;
@@ -20,6 +25,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -41,8 +49,12 @@ public class EditProfileView extends LinearLayout {
     @Bind(R.id.imageView)
     ImageView imageView;
 
+    @Bind(R.id.image_button)
+    Button imageButton;
+
     public EditProfileView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
     }
 
     @Override
@@ -53,33 +65,33 @@ public class EditProfileView extends LinearLayout {
         EventBus.getDefault().register(this);
     }
 
-//    @OnClick(R.id.change_button)
-//    public void login() {
-//        //dropa the keyboard off the screen when the user hits the button.
-//        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.hideSoftInputFromWindow(changeName.getWindowToken(), 0);
-//
-//        // gets the value from each text field.
-//        String fullname = changeName.getText().toString();
-//
-//        User changeInfo = new  User(fullname, Constants.avatarPlaceHolder);
-//        RestClient restClient = new RestClient();
-//        restClient.getApiService().userInfo(changeInfo).enqueue(new Callback<User>() {
-//            @Override
-//            public void onResponse(Call<User> call, Response<User> response) {
-//                if(response.isSuccessful()){
-//                    Toast.makeText(context, "Change Successful", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    Toast.makeText(context, "Couldn't upload picture.", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<User> call, Throwable t) {
-//                Toast.makeText(context, "Call failed", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
+    @OnClick(R.id.change_button)
+    public void login() {
+        //dropa the keyboard off the screen when the user hits the button.
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(changeName.getWindowToken(), 0);
+
+        // gets the value from each text field.
+        String fullname = changeName.getText().toString();
+
+        User changeInfo = new  User(fullname, Constants.avatarPlaceHolder);
+        RestClient restClient = new RestClient();
+        restClient.getApiService().userInfo(changeInfo).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if(response.isSuccessful()){
+                    Toast.makeText(context, "Change Successful", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Couldn't upload picture.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(context, "Call failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     // goes to the Main activity to get an image.
     @OnClick(R.id.image_button)
