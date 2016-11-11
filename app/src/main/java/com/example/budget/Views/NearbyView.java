@@ -30,7 +30,7 @@ public class NearbyView extends LinearLayout {
     private Context context;
     private NearbyAdapter listNearbyAdapter;
 
-    @Bind(R.id.recycle_pokemon)
+    @Bind(R.id.nearby_pokemon)
     RecyclerView recyclerView;
 
     public NearbyView(Context context, AttributeSet attrs) {
@@ -55,7 +55,7 @@ public class NearbyView extends LinearLayout {
             @Override
             public void onResponse(Call<User[]> call, Response<User[]> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(context, "HAHAHAHAHAHAHAHAHAHAHAHAH", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "a wild sweet sweet baby appears", Toast.LENGTH_SHORT).show();
                     listNearbyAdapter.nearbyUsers = new ArrayList<>(Arrays.asList(response.body()));
                     for (User user : listNearbyAdapter.nearbyUsers) {
                         listNearbyAdapter.notifyDataSetChanged();

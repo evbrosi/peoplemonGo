@@ -31,7 +31,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyHold
 
     @Override
     public NearbyAdapter.NearbyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View inflateView = LayoutInflater.from(context).inflate(R.layout.users_caught_item, parent,
+        View inflateView = LayoutInflater.from(context).inflate(R.layout.nearby_list_item, parent,
                 false);
         return new NearbyAdapter.NearbyHolder(inflateView);
     }
